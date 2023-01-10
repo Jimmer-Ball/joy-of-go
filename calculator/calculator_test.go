@@ -76,18 +76,34 @@ func TestMultiply(t *testing.T) {
 func TestDivide(t *testing.T) {
 	t.Parallel()
 
-	testCases := []testCase{
+	/*
+	 * Division by anything other than zero is allowed
+	 */
+	allowedTestCases := []testCase{
 		{a: 10, b: 2, want: 5},
 		{a: -10, b: 2, want: -5},
 		{a: 10, b: -2, want: -5},
+	}
+	for _, tc := range allowedTestCases {
+		got, _ := calculator.Divide(tc.a, tc.b)
+		if tc.want != got {
+			t.Errorf("Divide(%f, %f): want %f, got %f", tc.a, tc.b, tc.want, got)
+		}
+	}
+
+	/*
+	 * Divide by zero is invalid or not allowed
+	 */
+	invalidTestCases := []testCase{
 		{a: 1, b: 0, want: math.Inf(1)},
 		{a: -1, b: 0, want: math.Inf(-1)},
 	}
-
-	for _, tc := range testCases {
-		got := calculator.Divide(tc.a, tc.b)
-		if tc.want != got {
-			t.Errorf("Divide(%f, %f): want %f, got %f", tc.a, tc.b, tc.want, got)
+	for _, tc := range invalidTestCases {
+		_, err := calculator.Divide(tc.a, tc.b)
+		if err != nil {
+			t.Log(err)
+		} else {
+			t.Errorf("Divide(%f, %f): We expected an error", tc.a, tc.b)
 		}
 	}
 }
