@@ -23,7 +23,7 @@ only, using the directory structure to help isolate dependencies required and wi
 runnable programs.
 
 So our application *calculator* has a *cmd* subdirectory.  Within that is a *calculator* subdirectory 
-holding the *main* needed to run up the calculator as a EXE. In time the *cmd* subdirectory
+holding the *main* needed to run up the calculator as an EXE. In time the *cmd* subdirectory
 will hold extra subdirectories, one for calculator integration tests, and one for calculator storybook 
 tests, all of which will contain runnable code.  So, we use are using the *cmd* directory structure 
 to organise the runnable things we generate.
@@ -50,3 +50,10 @@ to your *.gitignore* file
 *.so
 *.dylib
 ```
+
+## Applications within the project
+
+There are several applications within the project
+
+* _books_: This holds the *books* application codebase
+* _calculator_: This holds the *calculator* codebase, which illustrates some good ways of writing tests
