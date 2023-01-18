@@ -102,7 +102,7 @@ func TestDivideByZero(t *testing.T) {
 		_, err := calculator.Divide(tc.a, tc.b)
 		if err != nil {
 			// We expected an error
-			t.Log(err)
+			t.Log("Expected error returned:", err)
 		} else {
 			t.Errorf("Divide(%f, %f): Failed to provide expected error", tc.a, tc.b)
 		}
