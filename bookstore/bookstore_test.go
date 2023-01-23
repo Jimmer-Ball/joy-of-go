@@ -9,7 +9,7 @@ import (
 // Buying a book reduces the number of copies available
 func TestBuy(t *testing.T) {
 	t.Parallel()
-	purchase := bookstore.Book{Title: "Example Book", Author: "Dave Normal", Copies: 3}
+	purchase := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
 	want := 2
 	result, _ := bookstore.Buy(purchase)
 	got := result.Copies
@@ -31,14 +31,33 @@ func TestBuyNoneAvailable(t *testing.T) {
 	}
 }
 
+func TestGetBook(t *testing.T) {
+	t.Parallel()
+	want := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
+	got, _ := bookstore.GetBook(1)
+	if want != got {
+		t.Errorf("Wanted %d but got %d", want.Id, got.Id)
+	}
+}
+
+func TestGetBookMissing(t *testing.T) {
+	t.Parallel()
+	_, err := bookstore.GetBook(122)
+	if err == nil {
+		t.Errorf("There is no book with Id of %d", 122)
+	} else {
+		t.Log("We got the expected error", err)
+	}
+}
+
 // Getting all books returns a list of 3 books provided by the store
 func TestGetAll(t *testing.T) {
 	t.Parallel()
 	// Expected
 	want := []bookstore.Book{
-		{Title: "Example Book", Author: "Dave Normal", Copies: 3},
-		{Title: "For the Love of Go", Author: "John Arundel", Copies: 4},
-		{Title: "Get me my gun", Author: "Raul Fandango"},
+		{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3},
+		{Id: 2, Title: "For the Love of Go", Author: "John Arundel", Copies: 4},
+		{Id: 3, Title: "Get me my gun", Author: "Raul Fandango"},
 	}
 
 	// got is an unlimited slice variable that can be used to reference an
@@ -48,9 +67,9 @@ func TestGetAll(t *testing.T) {
 	if got != nil {
 		count := len(got)
 		// Use the deep compare provided by the "cmp" module
-		// instead of rolling our own with reflect.DeepEqual
+		// instead of using the custom Equals
 		if !cmp.Equal(want, got) {
-			// What is the difference between want and got
+			// want should be the same as got
 			t.Errorf("Not what was wanted:\n %s", cmp.Diff(want, got))
 		}
 		if count == 3 {
@@ -70,7 +89,7 @@ func TestGetAll(t *testing.T) {
 			}
 
 			// We can add to an array using a slice
-			got = append(got, bookstore.Book{Title: "Another book", Author: "Dave Normal", Copies: 2})
+			got = append(got, bookstore.Book{Id: 4, Title: "Another book", Author: "Dave Normal", Copies: 2})
 			if len(got) != 4 {
 				t.Error("We appended to the got books listing, but the expected length is wrong")
 			}
@@ -79,5 +98,28 @@ func TestGetAll(t *testing.T) {
 		}
 	} else {
 		t.Error("We expected some books")
+	}
+}
+
+func TestEquals(t *testing.T) {
+	t.Parallel()
+	a := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
+	b := bookstore.Book{Id: 1, Title: "Some Other Book", Author: "Steve Abnormal", Copies: 3}
+
+	t.Logf("Pointer to \"a\" has value of %p", &a)
+	t.Logf("Pointer to \"b\" has value of %p", &b)
+
+	if !bookstore.Equals(&a, &b) {
+		t.Error("Expected equality operator to be the same")
+	}
+
+	// d is a pointer to a
+	var d = &a
+	if !bookstore.Equals(d, &a) {
+		t.Errorf("Expected %p pointer \"d\" to be the same as reference %p to \"&a\"", d, &a)
+	} else {
+		t.Logf("Pointer to \"a\" has value of %p", d)
+		t.Logf("Id of \"a\" via pointer \"d\" is %d", d.Id)
+		t.Logf("Title of \"a\" via pointer \"d\" is %s", d.Title)
 	}
 }
