@@ -3,8 +3,40 @@ package bookstore_test
 import (
 	"bookstore"
 	"github.com/google/go-cmp/cmp"
+	"strings"
 	"testing"
 )
+
+// Liking a book increments a book's like count
+func TestLike(t *testing.T) {
+
+	_ = bookstore.Like(1)
+	_ = bookstore.Like(1)
+	_ = bookstore.Like(1)
+	_ = bookstore.Like(2)
+
+	var likeCount int
+	likeCount, _ = bookstore.GetLikes(1)
+	if likeCount != 3 {
+		t.Errorf("We should have three likes against book Id 1")
+	}
+	likeCount, _ = bookstore.GetLikes(2)
+	if likeCount != 1 {
+		t.Errorf("We should have 1 like against book Id 2")
+	}
+	var err error = nil
+	likeCount, err = bookstore.GetLikes(4)
+	if likeCount != 0 {
+		t.Errorf("We should have 0 like against book Id 4")
+	}
+	if err == nil {
+		t.Error("We should have an error as book 4 does not exist")
+	} else {
+		if err.Error() != "the book with Id 4 does not exist" {
+			t.Errorf("Wrong error message provided %s", err.Error())
+		}
+	}
+}
 
 // Buying a book reduces the number of copies available
 func TestBuyAvailable(t *testing.T) {
@@ -44,7 +76,21 @@ func TestBuyNotFound(t *testing.T) {
 	_, err := bookstore.Buy(99, 1)
 	if err != nil {
 		// We expected a Not in Stock error
-		if err.Error() != "The book with Id 99 does not exist" {
+		if err.Error() != "the book with Id 99 does not exist" {
+			t.Errorf("Wrong error message provided %s", err.Error())
+		}
+	} else {
+		t.Error("We expected an error, as you cannot buy a book if there are none left")
+	}
+}
+
+// Buying too many copies of a book given the current stock levels results in an error
+func TestBuyUnavailable(t *testing.T) {
+	t.Parallel()
+	_, err := bookstore.Buy(1, 12)
+	if err != nil {
+		// We expected a Cannot buy error message
+		if !strings.Contains(err.Error(), "cannot buy 12 copies of book 1") {
 			t.Errorf("Wrong error message provided %s", err.Error())
 		}
 	} else {
