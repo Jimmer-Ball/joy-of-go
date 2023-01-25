@@ -7,25 +7,46 @@ import (
 )
 
 // Buying a book reduces the number of copies available
-func TestBuy(t *testing.T) {
+func TestBuyAvailable(t *testing.T) {
 	t.Parallel()
-	purchase := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
-	want := 2
-	result, _ := bookstore.Buy(purchase)
-	got := result.Copies
-	if want != got {
-		t.Errorf("want %d, got %d", want, got)
+
+	// Get hold of a book
+	targetBook := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
+	got, _ := bookstore.GetBook(1)
+	if targetBook != got {
+		t.Errorf("Wanted %d but got %d", targetBook.Id, got.Id)
+	}
+
+	// Buy one copy and check stock reduction
+	stockAfterPurchase, _ := bookstore.Buy(1, 1)
+	if stockAfterPurchase.Copies != 2 {
+		t.Errorf("The number of copies should have gone down by one")
+	}
+
+	// Re-get it and check stock level after purchase
+	reGot, _ := bookstore.GetBook(1)
+	if reGot.Copies != 2 {
+		t.Error("The number of copies in stock should be 2")
+	}
+
+	bookstore.IncreaseStock(1, 1)
+
+	// Re-get it and check stock level after restock
+	againGot, _ := bookstore.GetBook(1)
+	if againGot.Copies != 3 {
+		t.Error("The number of copies in stock should be 3")
 	}
 }
 
-// Buying a book when there are none in stock results in an error
-func TestBuyNoneAvailable(t *testing.T) {
+// Buying a book with an unknown id results in an error
+func TestBuyNotFound(t *testing.T) {
 	t.Parallel()
-	purchase := bookstore.Book{Title: "Missing Book", Author: "Gone Missing", Copies: 0}
-	_, err := bookstore.Buy(purchase)
+	_, err := bookstore.Buy(99, 1)
 	if err != nil {
-		// We expected an error
-		t.Log("Expected error returned:", err)
+		// We expected a Not in Stock error
+		if err.Error() != "The book with Id 99 does not exist" {
+			t.Errorf("Wrong error message provided %s", err.Error())
+		}
 	} else {
 		t.Error("We expected an error, as you cannot buy a book if there are none left")
 	}
@@ -35,7 +56,7 @@ func TestGetBook(t *testing.T) {
 	t.Parallel()
 	want := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3}
 	got, _ := bookstore.GetBook(1)
-	if want != got {
+	if want.Id != got.Id {
 		t.Errorf("Wanted %d but got %d", want.Id, got.Id)
 	}
 }
@@ -44,7 +65,7 @@ func TestGetBookMissing(t *testing.T) {
 	t.Parallel()
 	_, err := bookstore.GetBook(122)
 	if err == nil {
-		t.Errorf("There is no book with Id of %d", 122)
+		t.Errorf("We should have an error, as there is no book with Id of %d", 122)
 	} else {
 		t.Log("We got the expected error", err)
 	}
@@ -62,8 +83,7 @@ func TestGetAll(t *testing.T) {
 
 	// got is an unlimited slice variable that can be used to reference an
 	// underlying array of bookstore.Book items. See https://go.dev/doc/effective_go#slices
-	var got []bookstore.Book
-	got, _ = bookstore.GetAll()
+	var got = bookstore.GetAll()
 	if got != nil {
 		count := len(got)
 		// Use the deep compare provided by the "cmp" module

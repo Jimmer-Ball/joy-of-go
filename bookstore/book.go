@@ -8,8 +8,9 @@ type Book struct {
 	Copies int
 }
 
-// Equals if either both book pointers point to the same struct in mem,
-// or if both structs have the same Id value, as Id is the Primary Key
+// Equals means a book is equal to another book, if either both book pointers provided
+// point to the same struct in memory, or if both structs have the same Id value, as
+// Id is the Primary Key of the struct
 func Equals(a, b *Book) bool {
 	var returnValue bool
 	if a == b {
