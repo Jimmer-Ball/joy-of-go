@@ -15,18 +15,18 @@ func TestLike(t *testing.T) {
 	_ = bookstore.Like(1)
 	_ = bookstore.Like(2)
 
-	var likeCount int
-	likeCount, _ = bookstore.GetLikes(1)
-	if likeCount != 3 {
+	var rating bookstore.Rating
+	rating, _ = bookstore.GetRating(1)
+	if rating.Likes != 3 {
 		t.Errorf("We should have three likes against book Id 1")
 	}
-	likeCount, _ = bookstore.GetLikes(2)
-	if likeCount != 1 {
+	rating, _ = bookstore.GetRating(2)
+	if rating.Likes != 1 {
 		t.Errorf("We should have 1 like against book Id 2")
 	}
 	var err error = nil
-	likeCount, err = bookstore.GetLikes(4)
-	if likeCount != 0 {
+	rating, err = bookstore.GetRating(4)
+	if rating.Likes != 0 {
 		t.Errorf("We should have 0 like against book Id 4")
 	}
 	if err == nil {
@@ -35,6 +35,12 @@ func TestLike(t *testing.T) {
 		if err.Error() != "the book with Id 4 does not exist" {
 			t.Errorf("Wrong error message provided %s", err.Error())
 		}
+	}
+
+	_ = bookstore.Dislike(1)
+	rating, _ = bookstore.GetRating(1)
+	if rating.Likes != 3 && rating.Dislikes != 1 {
+		t.Errorf("We should have three likes against book Id 1 and one dislike")
 	}
 }
 
