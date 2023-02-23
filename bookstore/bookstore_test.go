@@ -195,3 +195,23 @@ func TestEquals(t *testing.T) {
 		t.Logf("Title of \"a\" via pointer \"d\" is %s", d.Title)
 	}
 }
+
+// Test that the method Book.DiscountPriceCents can "receive" a Book type to work on, and that the
+// calculated discount price is as expected given the percentage discount available on the book
+func TestDiscountPriceCents(t *testing.T) {
+	a := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3,
+		PriceCents: 600, DiscountPercent: 5}
+	if a.DiscountPriceCents() != 570 {
+		t.Errorf("Expected %d discounted price and got %d instead", 570, a.DiscountPriceCents())
+	}
+}
+
+func TestMyStringLen(t *testing.T) {
+	t.Parallel()
+	input := bookstore.MyString("Hello, Gophers!")
+	want := 15
+	got := input.Len()
+	if want != got {
+		t.Errorf("%q: want len %d, got %d", input, want, got)
+	}
+}

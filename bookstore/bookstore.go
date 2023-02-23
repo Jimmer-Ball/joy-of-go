@@ -1,6 +1,6 @@
 package bookstore
 
-// Note that uppercase methods and structs are visible outside this package
+// Note that uppercase functions and structs are visible outside this package
 import (
 	"fmt"
 	"sort"
@@ -12,6 +12,9 @@ type Rating struct {
 	Likes    int
 	Dislikes int
 }
+
+// MyString if you want to add behaviour to a base type, create your own type from a base type
+type MyString string
 
 // The stock catalog needs to be a common shared resource
 var stock = []Book{
@@ -113,6 +116,13 @@ func IncreaseStock(Id int, copies int) Book {
 // DecreaseStock reduces the stock count for a given book in the stock catalog
 func DecreaseStock(Id int, copies int) Book {
 	return stockManagement(Id, copies, false)
+}
+
+// Len Although you cannot define custom methods on base types, you can if you create your own type "from" the base
+// type. So this is an example of a custom method on the base type "string" by way of using our own defined type
+// MyString as an intermediary type we "can" define methods on.
+func (s MyString) Len() int {
+	return len(s)
 }
 
 func stockManagement(Id int, copies int, increase bool) Book {

@@ -2,10 +2,12 @@ package bookstore
 
 // Book represents information about a book
 type Book struct {
-	Id     int
-	Title  string
-	Author string
-	Copies int
+	Id              int
+	Title           string
+	Author          string
+	Copies          int
+	PriceCents      int
+	DiscountPercent int
 }
 
 // Equals means a book is equal to another book, if either both book pointers provided
@@ -25,4 +27,14 @@ func Equals(a, b *Book) bool {
 		}
 	}
 	return returnValue
+}
+
+// DiscountPriceCents method equals the PriceCents minus whatever saving the DiscountPercent represents. This
+// function has a "receiver" element that comes after the "func" part, that indicates what struct or
+// interface the "method" can be applied to, and is what makes this function a "method". Here the receiver is
+// "(b Book)" which is then used within the method. So it is GO's way of saying here is a method.  The received
+// type can be an interface too, which makes it nicely adaptive
+func (b Book) DiscountPriceCents() int {
+	saving := b.PriceCents * b.DiscountPercent / 100
+	return b.PriceCents - saving
 }
