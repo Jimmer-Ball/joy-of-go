@@ -199,10 +199,49 @@ func TestEquals(t *testing.T) {
 // Test that the method Book.DiscountPriceCents can "receive" a Book type to work on, and that the
 // calculated discount price is as expected given the percentage discount available on the book
 func TestDiscountPriceCents(t *testing.T) {
+	t.Parallel()
 	a := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3,
 		PriceCents: 600, DiscountPercent: 5}
+
+	// Call method on Book named DiscountPriceCents
 	if a.DiscountPriceCents() != 570 {
 		t.Errorf("Expected %d discounted price and got %d instead", 570, a.DiscountPriceCents())
+	}
+}
+
+func TestAdjustPrices(t *testing.T) {
+	t.Parallel()
+	a := bookstore.Book{Id: 1, Title: "Example Book", Author: "Dave Normal", Copies: 3,
+		PriceCents: 600, DiscountPercent: 5}
+
+	// Call AdjustPrices on a book with args in range
+	_ = a.AdjustPrices(500, 10)
+	if a.PriceCents != 500 && a.DiscountPercent != 10 {
+		t.Errorf("Expected %d price, and got %d, and expected discount %d, and got %d", 500,
+			a.PriceCents, 10, a.DiscountPercent)
+	}
+
+	// Call AdjustPrices on a book with a bad price of 0
+	badPrice := a.AdjustPrices(0, 10)
+	if badPrice != nil {
+		if badPrice.Error() != "The PriceCents value 0 and DiscountPercent 10 value are invalid" {
+			t.Errorf("Invalid error, got %s", badPrice.Error())
+		}
+	}
+	// Call AdjustPrices on a book with a bad price of 0
+	badUpperPercent := a.AdjustPrices(120, 900)
+	if badUpperPercent != nil {
+		if badUpperPercent.Error() != "The PriceCents value 120 and DiscountPercent 900 value are invalid" {
+			t.Errorf("Invalid error, got %s", badUpperPercent.Error())
+		}
+	}
+
+	// Call AdjustPrices on a book with a bad price of 0
+	badLowerPercent := a.AdjustPrices(120, -10)
+	if badLowerPercent != nil {
+		if badLowerPercent.Error() != "The PriceCents value 120 and DiscountPercent -10 value are invalid" {
+			t.Errorf("Invalid error, got %s", badLowerPercent.Error())
+		}
 	}
 }
 

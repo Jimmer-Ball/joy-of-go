@@ -1,5 +1,10 @@
 package bookstore
 
+import (
+	"errors"
+	"fmt"
+)
+
 // Book represents information about a book
 type Book struct {
 	Id              int
@@ -34,7 +39,22 @@ func Equals(a, b *Book) bool {
 // interface the "method" can be applied to, and is what makes this function a "method". Here the receiver is
 // "(b Book)" which is then used within the method. So it is GO's way of saying here is a method.  The received
 // type can be an interface too, which makes it nicely adaptive
-func (b Book) DiscountPriceCents() int {
+func (b *Book) DiscountPriceCents() int {
 	saving := b.PriceCents * b.DiscountPercent / 100
 	return b.PriceCents - saving
+}
+
+// AdjustPrices is a receiver method that takes a pointer to a book struct. As such the Book pointed to gets
+// updated, meaning encapsulation.Since methods often need to modify their receiver, pointer receivers are
+// often more common than value receivers.
+func (b *Book) AdjustPrices(newPrice int, newDiscountPercent int) error {
+	var err error = nil
+	if newPrice > 0 && (newDiscountPercent > 0 && newDiscountPercent < 100) {
+		b.PriceCents = newPrice
+		b.DiscountPercent = newDiscountPercent
+	} else {
+		err = errors.New(fmt.Sprintf("The PriceCents value %d and DiscountPercent %d value are invalid",
+			newPrice, newDiscountPercent))
+	}
+	return err
 }
